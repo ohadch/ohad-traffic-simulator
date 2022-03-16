@@ -5,7 +5,8 @@ def main():
     frame_rate_sec = 1
     board = Board(
         num_rows=30,
-        num_cols=30
+        num_cols=30,
+        objects=[]
     )
 
     Game(
