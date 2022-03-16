@@ -37,7 +37,10 @@ class Vector:
         else:
             raise ValueError("Invalid direction")
 
-    def get_direction(self):
+    def __str__(self):
+        return f"Vector({self.rows}, {self.cols})"
+
+    def get_direction(self) -> [Direction, None]:
         if self.rows == 0 and self.cols > 0:
             return Direction.RIGHT
         elif self.rows == 0 and self.cols < 0:
@@ -46,8 +49,10 @@ class Vector:
             return Direction.DOWN
         elif self.rows < 0 and self.cols == 0:
             return Direction.UP
+        elif self.rows == 0 and self.cols == 0:
+            return None
         else:
-            raise ValueError("Diagonal movement not allowed")
+            raise ValueError(f"Invalid vector: {self}")
 
 
 class Coordinates:
@@ -58,6 +63,9 @@ class Coordinates:
 
     def __eq__(self, other):
         return self.row == other.row and self.column == other.column
+
+    def __str__(self):
+        return f"({self.row}, {self.column})"
 
     def get_next_by_direction(self, direction: Direction, num_steps: int = 1) -> "Coordinates":
         """
@@ -71,8 +79,10 @@ class Coordinates:
             return Coordinates(self.row, self.column - num_steps)
         elif direction == Direction.RIGHT:
             return Coordinates(self.row, self.column + num_steps)
+        elif direction is None:
+            return self
         else:
-            raise ValueError("Direction not supported")
+            raise ValueError(f"Direction not supported: {direction}")
 
 
 class Object:
@@ -148,6 +158,8 @@ class RoadsCreatorPlayerObject(Object):
                 new_direction = random.choice([Direction.UP, Direction.DOWN, Direction.LEFT])
             elif direction == Direction.RIGHT:
                 new_direction = random.choice([Direction.UP, Direction.DOWN, Direction.RIGHT])
+            elif direction is None:
+                continue
             else:
                 raise ValueError("Direction not supported")
 
@@ -173,8 +185,6 @@ class Game:
     def __init__(self, board: Board, frame_rate_sec: float):
         self.frame_rate_sec = frame_rate_sec
         self.board = board
-        self.objects: List[Object] = []
-
         self.spawn_roads_creator_player()
 
     def spawn_roads_creator_player(self):
@@ -211,9 +221,16 @@ class Game:
 
     def run(self):
         while True:
-            for obj in self.objects:
+            for obj in self.board.objects:
                 obj.update()
 
             self.clear_screen()
             self.board.draw()
+
+            print("\n")
+            print(f"Frame rate: {1 / self.frame_rate_sec}")
+            print(f"Number of objects: {len(self.board.objects)}")
+            for obj in self.board.objects:
+                print(f"Object: {obj.__class__.__name__}: {obj.coordinates}")
+
             time.sleep(self.frame_rate_sec)
