@@ -2,7 +2,7 @@ from game import Game, Board
 
 
 def main():
-    frame_rate_sec = 1
+    frame_rate_sec = 0.3
     board = Board(
         num_rows=30,
         num_cols=30,

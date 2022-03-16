@@ -1,88 +1,9 @@
 import os
 import random
 import time
-from enum import Enum
 from typing import List
 
-
-class Direction(Enum):
-    """
-    Enum for the four directions
-    """
-    UP = "UP"
-    DOWN = "DOWN"
-    LEFT = "LEFT"
-    RIGHT = "RIGHT"
-
-
-class Vector:
-
-    def __init__(self, rows: int, cols: int):
-        self.rows = rows
-        self.cols = cols
-
-    def stop(self):
-        self.rows = 0
-        self.cols = 0
-
-    def set_by_speed_and_direction(self, speed: int, direction: Direction):
-        if direction == Direction.UP:
-            self.rows = -speed
-        elif direction == Direction.DOWN:
-            self.rows = speed
-        elif direction == Direction.LEFT:
-            self.cols = -speed
-        elif direction == Direction.RIGHT:
-            self.cols = speed
-        else:
-            raise ValueError("Invalid direction")
-
-    def __str__(self):
-        return f"Vector({self.rows}, {self.cols})"
-
-    def get_direction(self) -> [Direction, None]:
-        if self.rows == 0 and self.cols > 0:
-            return Direction.RIGHT
-        elif self.rows == 0 and self.cols < 0:
-            return Direction.LEFT
-        elif self.rows > 0 and self.cols == 0:
-            return Direction.DOWN
-        elif self.rows < 0 and self.cols == 0:
-            return Direction.UP
-        elif self.rows == 0 and self.cols == 0:
-            return None
-        else:
-            raise ValueError(f"Invalid vector: {self}")
-
-
-class Coordinates:
-
-    def __init__(self, row: int, column: int):
-        self.row = row
-        self.column = column
-
-    def __eq__(self, other):
-        return self.row == other.row and self.column == other.column
-
-    def __str__(self):
-        return f"({self.row}, {self.column})"
-
-    def get_next_by_direction(self, direction: Direction, num_steps: int = 1) -> "Coordinates":
-        """
-        Returns the next coordinates in the given direction
-        """
-        if direction == Direction.UP:
-            return Coordinates(self.row - num_steps, self.column)
-        elif direction == Direction.DOWN:
-            return Coordinates(self.row + num_steps, self.column)
-        elif direction == Direction.LEFT:
-            return Coordinates(self.row, self.column - num_steps)
-        elif direction == Direction.RIGHT:
-            return Coordinates(self.row, self.column + num_steps)
-        elif direction is None:
-            return self
-        else:
-            raise ValueError(f"Direction not supported: {direction}")
+from utils import Coordinates, Vector, Direction
 
 
 class Object:
@@ -90,6 +11,24 @@ class Object:
     def __init__(self, coordinates: Coordinates, vector: Vector):
         self.coordinates = coordinates
         self.vector = vector
+
+    def move(self):
+        self.coordinates.column += self.vector.cols
+        self.coordinates.row += self.vector.rows
+
+    def can_advance_in_direction(self, direction: Direction, board: "Board") -> bool:
+        next_coordinates = self.coordinates.get_next_by_direction(direction, self.vector.speed())
+
+        if next_coordinates.row < 0 or next_coordinates.row >= board.num_rows:
+            return False
+
+        if next_coordinates.column < 0 or next_coordinates.column >= board.num_cols:
+            return False
+
+        if board.get_object_at(next_coordinates) is not None:
+            return False
+
+        return True
 
     def __str__(self):
         raise NotImplementedError
@@ -140,30 +79,52 @@ class RoadsCreatorPlayerObject(Object):
         self.board = board
         self.speed = 1
 
+    def get_possible_directions(self) -> List[Direction]:
+        possible_directions: List[Direction] = []
+
+        if self.can_advance_in_direction(Direction.UP, self.board):
+            possible_directions.append(Direction.UP)
+        if self.can_advance_in_direction(Direction.DOWN, self.board):
+            possible_directions.append(Direction.DOWN)
+        if self.can_advance_in_direction(Direction.LEFT, self.board):
+            possible_directions.append(Direction.LEFT)
+        if self.can_advance_in_direction(Direction.RIGHT, self.board):
+            possible_directions.append(Direction.RIGHT)
+
+        return possible_directions
+
     def update(self):
-        obj_at_coordinate = self.board.get_object_at(self.coordinates)
+        direction = self.vector.get_direction()
+        possible_directions = self.get_possible_directions()
+
+        if direction == Direction.UP:
+            directions_pool = [Direction.LEFT, Direction.RIGHT, Direction.UP]
+        elif direction == Direction.DOWN:
+            directions_pool = [Direction.LEFT, Direction.RIGHT, Direction.DOWN]
+        elif direction == Direction.LEFT:
+            directions_pool = [Direction.UP, Direction.DOWN, Direction.LEFT]
+        elif direction == Direction.RIGHT:
+            directions_pool = [Direction.UP, Direction.DOWN, Direction.RIGHT]
+        elif direction is None:
+            return
+        else:
+            raise ValueError("Direction not supported")
+
+        filtered_directions_pool = [foo for foo in directions_pool if foo in possible_directions]
+        if len(filtered_directions_pool) == 0:
+            self.vector.stop()
+            return
+
+        new_direction = random.choice(filtered_directions_pool)
+        next_coordinates = self.coordinates.get_next_by_direction(new_direction, self.speed)
+        obj_at_coordinate = self.board.get_object_at(next_coordinates)
+
         if obj_at_coordinate is not None:
             self.vector.stop()
         else:
-            self.board.objects.append(RoadObject(self.coordinates))
+            self.board.objects.append(RoadObject(self.coordinates.clone()))
 
-        direction = self.vector.get_direction()
-
-        while True:
-            if direction == Direction.UP:
-                new_direction = random.choice([Direction.LEFT, Direction.RIGHT, Direction.UP])
-            elif direction == Direction.DOWN:
-                new_direction = random.choice([Direction.LEFT, Direction.RIGHT, Direction.DOWN])
-            elif direction == Direction.LEFT:
-                new_direction = random.choice([Direction.UP, Direction.DOWN, Direction.LEFT])
-            elif direction == Direction.RIGHT:
-                new_direction = random.choice([Direction.UP, Direction.DOWN, Direction.RIGHT])
-            elif direction is None:
-                continue
-            else:
-                raise ValueError("Direction not supported")
-
-            self.vector.set_by_speed_and_direction(self.speed, new_direction)
+        self.vector.set_by_speed_and_direction(self.speed, new_direction)
 
     def __str__(self):
         return "C"
@@ -223,6 +184,7 @@ class Game:
         while True:
             for obj in self.board.objects:
                 obj.update()
+                obj.move()
 
             self.clear_screen()
             self.board.draw()
@@ -230,7 +192,5 @@ class Game:
             print("\n")
             print(f"Frame rate: {1 / self.frame_rate_sec}")
             print(f"Number of objects: {len(self.board.objects)}")
-            for obj in self.board.objects:
-                print(f"Object: {obj.__class__.__name__}: {obj.coordinates}")
 
             time.sleep(self.frame_rate_sec)
