@@ -44,19 +44,20 @@ class Board:
         """
         border_str = BorderObject().__str__()
 
-        print(border_str * (len(self.matrix[0]) + 2))
+        print(" ".join(list(border_str * (len(self.matrix[0]) + 2))))
 
         for row in self.matrix:
             row_strs_list = [point.__str__() for point in row]
-            print("".join([border_str, *row_strs_list, border_str]))
+            print(" ".join([border_str, *row_strs_list, border_str]))
 
-        print(border_str * (len(self.matrix[0]) + 2))
+        print(" ".join(list(border_str * (len(self.matrix[0]) + 2))))
+
 
 class Game:
 
-    def __init__(self):
-        self.frame_rate_sec = 1
-        self.board = Board(10, 10)
+    def __init__(self, board: Board, frame_rate_sec: float):
+        self.frame_rate_sec = frame_rate_sec
+        self.board = board
 
     def draw(self):
         self.board.draw()
