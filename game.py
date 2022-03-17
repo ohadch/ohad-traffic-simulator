@@ -146,7 +146,13 @@ class Game:
     def __init__(self, board: Board, frame_rate_sec: float):
         self.frame_rate_sec = frame_rate_sec
         self.board = board
-        self.spawn_roads_creator_player()
+        self.draw_roads()
+
+    def draw_roads(self):
+        row = self.board.num_rows // 2
+
+        for col in range(self.board.num_cols):
+            self.board.objects.append(RoadObject(Coordinates(row, col)))
 
     def spawn_roads_creator_player(self):
         should_start_from_row = random.choice([True, False])
