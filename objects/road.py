@@ -32,8 +32,9 @@ class RoadObject(Object):
 
 class RoadObjectsGroup(ObjectsGroup):
 
-    def __init__(self, objects: List[RoadObject]):
+    def __init__(self, objects: List[RoadObject], direction: Direction):
         super().__init__(objects)
+        self.direction = direction
 
     @property
     def start(self) -> RoadObject:

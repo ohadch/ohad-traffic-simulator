@@ -6,7 +6,7 @@ from typing import List
 from board import Board
 from objects.car import CarObject
 from objects.core import ObjectsGroup, Object
-from objects.junction import JunctionObject, JunctionState
+from objects.junction import JunctionObject, JunctionTrafficLightColor
 from objects.road import RoadObject, RoadObjectsGroup
 from objects.wall import WallObject
 from utils import Coordinates, clear_screen, Direction, get_random_color_name
@@ -16,7 +16,7 @@ class Game:
 
     def __init__(self, board: Board, frame_rate_sec: float):
         self.ticks_until_next_car_spawn = random.randint(5, 10)
-        self.max_cars = 5
+        self.max_cars = 10
         self.frame_rate_sec = frame_rate_sec
         self.board = board
         self.static_classes = [WallObject, RoadObject]
@@ -57,11 +57,11 @@ class Game:
     def __create_roads(self) -> List[ObjectsGroup]:
         center_horizontal_road_1 = RoadObjectsGroup([
             RoadObject(Coordinates(x, self.board.map_size_y // 2), Direction.RIGHT) for x in range(1, self.board.map_size_x - 1)
-        ])
+        ], Direction.RIGHT)
 
         center_vertical_road_1 = RoadObjectsGroup([
             RoadObject(Coordinates(self.board.map_size_x // 2, y), Direction.DOWN) for y in range(1, self.board.map_size_y - 1)
-        ])
+        ], Direction.DOWN)
 
         return [center_horizontal_road_1, center_vertical_road_1]
 
@@ -86,7 +86,7 @@ class Game:
             intersections = road_a.get_intersections(road_b)
 
             for intersection in intersections:
-                junctions.append(JunctionObject(intersection.clone(), JunctionState.RED))
+                junctions.append(JunctionObject(intersection.clone(), [road_a.direction, road_b.direction]))
 
         return junctions
 
