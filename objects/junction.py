@@ -29,6 +29,9 @@ class JunctionObject(Object):
         self.ticks_until_flip = 0
 
     def __get_char_by_state(self):
+        if self.color == JunctionTrafficLightColor.RED:
+            return colored("*", self.color.value)
+
         if self.direction == Direction.UP:
             return colored(ASCII_ARROW_UP, self.color.value)
         elif self.direction == Direction.DOWN:
@@ -43,6 +46,7 @@ class JunctionObject(Object):
             self.ticks_until_flip -= 1
         else:
             self.direction = random.choice([foo for foo in self.possible_directions if foo != self.direction])
+            self.color = random.choice(list(JunctionTrafficLightColor))
             self.ticks_until_flip = random.randint(5, 15)
 
         self.char = self.__get_char_by_state()
