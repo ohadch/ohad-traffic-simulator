@@ -4,14 +4,18 @@ from typing import List
 from termcolor import colored
 
 import game_globals
-from utils import Coordinates, Vector
+from utils import Coordinates, Vector, Direction
+
+ASCII_ARROW_UP = '\u2191'
+ASCII_ARROW_DOWN = '\u2193'
+ASCII_ARROW_LEFT = '\u2190'
+ASCII_ARROW_RIGHT = '\u2192'
 
 
 class Object:
 
-    def __init__(self, center: Coordinates, span: List[Coordinates], char: str):
-        self.center = center
-        self.span = span
+    def __init__(self, position: Coordinates, char: str):
+        self.position = position
         self.vector: Vector = Vector(0, 0)
         self.char: str = char
 
@@ -23,11 +27,7 @@ class Object:
 
     def update(self):
         self._update_vector()
-
-        for cors in self.span:
-            cors.update(
-                vector=self.vector,
-            )
+        self.position.update(self.vector)
 
     def _update_vector(self) -> Vector:
         return Vector(0, 0)
@@ -35,44 +35,47 @@ class Object:
 
 class WallObject(Object):
 
-    def __init__(self, center: Coordinates, span: List[Coordinates]):
-        super().__init__(center, span, "#")
+    def __init__(self, center: Coordinates):
+        super().__init__(center, "#")
 
     def _update_vector(self) -> Coordinates:
-        return self.center
+        return self.position
 
 
 class RoadObject(Object):
 
-    def __init__(self, center: Coordinates, span: List[Coordinates], char: str):
-        super().__init__(center, span, char)
+    def __init__(self, center: Coordinates, direction: Direction):
+        self.direction = direction
+        super().__init__(center, self.__get_char())
+
+    def __get_char(self) -> str:
+        return {
+            Direction.UP: ASCII_ARROW_UP,
+            Direction.DOWN: ASCII_ARROW_DOWN,
+            Direction.LEFT: ASCII_ARROW_LEFT,
+            Direction.RIGHT: ASCII_ARROW_RIGHT
+        }[self.direction]
 
     def _update_vector(self) -> Coordinates:
-        return self.center
+        return self.position
 
 
 class CarObject(Object):
 
     def __init__(self, center: Coordinates, color: str):
-        super().__init__(center, [center], colored("@", color))
+        super().__init__(center, colored("@", color))
 
     def __get_neighbors(self):
         return [
-            [Coordinates(self.center.x + 1, self.center.y), game_globals.BOARD.get_object_at(
-                Coordinates(self.center.x + 1, self.center.y))],
-            [Coordinates(self.center.x - 1, self.center.y), game_globals.BOARD.get_object_at(
-                Coordinates(self.center.x - 1, self.center.y))],
-            [Coordinates(self.center.x, self.center.y + 1), game_globals.BOARD.get_object_at(
-                Coordinates(self.center.x, self.center.y + 1))],
-            [Coordinates(self.center.x, self.center.y - 1), game_globals.BOARD.get_object_at(
-                Coordinates(self.center.x, self.center.y - 1))],
+            [Coordinates(self.position.x + 1, self.position.y), game_globals.BOARD.get_object_at(
+                Coordinates(self.position.x + 1, self.position.y))],
+            [Coordinates(self.position.x - 1, self.position.y), game_globals.BOARD.get_object_at(
+                Coordinates(self.position.x - 1, self.position.y))],
+            [Coordinates(self.position.x, self.position.y + 1), game_globals.BOARD.get_object_at(
+                Coordinates(self.position.x, self.position.y + 1))],
+            [Coordinates(self.position.x, self.position.y - 1), game_globals.BOARD.get_object_at(
+                Coordinates(self.position.x, self.position.y - 1))],
         ]
-
-    def get_next_by_vector(self):
-        if self.vector.speed() == 0:
-            return self.center
-        else:
-            return Coordinates(self.center.x + self.vector.dx, self.center.y + self.vector.dy)
 
     def is_in_junction(self):
         neighbors = self.__get_neighbors()
@@ -87,11 +90,11 @@ class CarObject(Object):
             destination = random.choice(coordinates_of_neighboring_roads)
 
             self.vector = Vector(
-                dx=destination.x - self.center.x,
-                dy=destination.y - self.center.y
+                dx=destination.x - self.position.x,
+                dy=destination.y - self.position.y
             )
         else:
-            next_by_vector = self.get_next_by_vector()
+            next_by_vector = Coordinates(self.position.x + self.vector.dx, self.position.y + self.vector.dy)
 
             if next_by_vector not in coordinates_of_neighboring_roads:
                 self.vector = Vector(0, 0)

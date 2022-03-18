@@ -13,7 +13,7 @@ class Board:
 
     def get_object_at(self, coordinates: Coordinates) -> [Object, None]:
         for obj in self.objects[::-1]:
-            if coordinates in obj.span:
+            if coordinates == obj.position:
                 return obj
         return None
 
