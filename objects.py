@@ -1,5 +1,7 @@
 from typing import List
 
+from termcolor import colored
+
 from utils import Coordinates, Vector
 
 
@@ -35,3 +37,13 @@ class RoadObject(Object):
 
     def update(self):
         pass
+
+
+class CarObject(Object):
+
+    def __init__(self, center: Coordinates, color: str):
+        super().__init__(center, [center], colored("@", color))
+
+    def update(self):
+        pass
+

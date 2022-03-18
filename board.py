@@ -12,7 +12,7 @@ class Board:
         self.objects: List[Object] = []
 
     def get_object_at(self, coordinates: Coordinates) -> [Object, None]:
-        for obj in self.objects:
+        for obj in self.objects[::-1]:
             if coordinates in obj.span:
                 return obj
         return None
