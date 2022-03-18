@@ -4,7 +4,7 @@ from game import Game, Board
 
 
 def main():
-    frame_rate_sec = 0.1
+    frame_rate_sec = 0.3
 
     game_globals.BOARD = Board(
         map_size_x=21,

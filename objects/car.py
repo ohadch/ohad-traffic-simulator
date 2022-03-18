@@ -1,5 +1,3 @@
-import random
-
 from termcolor import colored
 
 import game_globals

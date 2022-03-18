@@ -11,6 +11,9 @@ ASCII_ARROW_RIGHT = '\u2192'
 
 class RoadObject(Object):
 
+    def update(self):
+        pass
+
     def __init__(self, center: Coordinates, direction: Direction):
         self.direction = direction
         super().__init__(center, self.__get_char())
@@ -35,6 +38,16 @@ class RoadObjectsGroup(ObjectsGroup):
     @property
     def start(self) -> RoadObject:
         return self.objects[0]
+
+    def get_intersections(self, other: "RoadObjectsGroup") -> List[Coordinates]:
+        intersections = []
+        other_positions = [obj.position for obj in other.objects]
+
+        for obj in self.objects:
+            if obj.position in other_positions:
+                intersections.append(obj.position)
+
+        return intersections
 
     @property
     def end(self) -> RoadObject:

@@ -1,9 +1,11 @@
+import itertools
 import time
 from typing import List
 
 from board import Board
 from objects.car import CarObject
 from objects.core import ObjectsGroup, Object
+from objects.junction import JunctionObject
 from objects.road import RoadObject, RoadObjectsGroup
 from objects.wall import WallObject
 from utils import Coordinates, clear_screen, Direction
@@ -20,8 +22,10 @@ class Game:
 
     def __create_initial_objects(self):
         self.board.single_objects.extend(self.__create_borders())
-        self.board.object_groups.extend(self.__create_roads())
+        roads = self.__create_roads()
+        self.board.object_groups.extend(roads)
         self.board.single_objects.extend(self.__create_cars())
+        self.__identify_junctions(roads)
 
     def __create_borders(self) -> List[Object]:
         upper_wall = [
@@ -43,21 +47,36 @@ class Game:
         return [*upper_wall, *lower_wall, *left_wall, *right_wall]
 
     def __create_roads(self) -> List[ObjectsGroup]:
-        center_horizontal_road = RoadObjectsGroup([
+        center_horizontal_road_1 = RoadObjectsGroup([
             RoadObject(Coordinates(x, self.board.map_size_y // 2), Direction.RIGHT) for x in range(1, self.board.map_size_x - 1)
         ])
 
-        return [center_horizontal_road]
+        center_vertical_road_1 = RoadObjectsGroup([
+            RoadObject(Coordinates(self.board.map_size_x // 2, y), Direction.DOWN) for y in range(1, self.board.map_size_y - 1)
+        ])
 
-    def __create_cars(self):
+        return [center_horizontal_road_1, center_vertical_road_1]
+
+    def __create_cars(self) -> List[Object]:
         roads = [group for group in self.board.object_groups if isinstance(group, RoadObjectsGroup)]
-        red_car_road = roads[0]
-        red_car = CarObject(red_car_road.start.position.clone(), "red")
-        red_car.active_road = red_car_road
 
-        return [
-            red_car
-        ]
+        red_car = self.__create_car(roads[0], "red")
+        blue_car = self.__create_car(roads[1], "blue")
+
+        return [red_car, blue_car]
+
+    def __create_car(self, road: RoadObjectsGroup, color: str) -> CarObject:
+        red_car = CarObject(road.start.position.clone(), color)
+        red_car.active_road = road
+
+        return red_car
+
+    def __identify_junctions(self, roads: List[RoadObjectsGroup]):
+        for road_a, road_b in itertools.combinations(roads, 2):
+            intersections = road_a.get_intersections(road_b)
+
+            for intersection in intersections:
+                self.board.single_objects.append(JunctionObject(intersection.clone()))
 
     def __draw(self):
         for y in range(self.board.map_size_y):
