@@ -90,7 +90,7 @@ class Game:
     def __create_car(self, road: RoadObjectsGroup) -> CarObject:
         """
         Creates a car on the board.
-        :param road: The road the car is on.
+        @param road: The road the car is on.
         @return: The created car.
         """
         car = CarObject(road.start.position.clone(), get_random_color_name())
@@ -101,7 +101,7 @@ class Game:
     def __identify_junctions(self, roads: List[RoadObjectsGroup]) -> List[JunctionObject]:
         """
         Identifies the junctions on the board.
-        :param roads: The roads on the board.
+        @param roads: The roads on the board.
         @return: The identified junctions.
         """
         junctions: JunctionObject = []
@@ -137,7 +137,7 @@ class Game:
     def get_junction(self, coordinates: Coordinates) -> [JunctionObject, None]:
         """
         Gets the junction at the given coordinates.
-        :param coordinates: The coordinates of the junction.
+        @param coordinates: The coordinates of the junction.
         @return: The junction at the given coordinates or None if there is no junction at the given coordinates.
         """
         junctions_at_coordinate = [junction for junction in self.junctions if junction.position == coordinates]
@@ -149,7 +149,7 @@ class Game:
     def get_car(self, coordinates: Coordinates) -> [JunctionObject, None]:
         """
         Gets the car at the given coordinates.
-        :param coordinates: The coordinates of the car.
+        @param coordinates: The coordinates of the car.
         @return: The car at the given coordinates or None if there is no car at the given coordinates.
         """
         cars_at_coordinate = [car for car in self.cars if car.position == coordinates]

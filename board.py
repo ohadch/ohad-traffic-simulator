@@ -27,7 +27,7 @@ class Board:
     def get_object_at(self, coordinates: Coordinates) -> [Object, None]:
         """
         Returns the object at the given coordinates.
-        :param coordinates: The coordinates of the object.
+        @param coordinates: The coordinates of the object.
         @return: The object at the given coordinates or None if there is no object at the given coordinates.
         """
         for obj in self.all_objects[::-1]:
