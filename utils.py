@@ -1,4 +1,5 @@
 import os
+import random
 from enum import Enum
 
 
@@ -30,3 +31,17 @@ def clear_screen():
     Clears the screen
     """
     os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def get_random_color_name() -> str:
+    """
+    Returns a random color name
+    """
+    return random.choice([
+        'red',
+        'green',
+        'yellow',
+        'blue',
+        'magenta',
+        'cyan',
+    ])

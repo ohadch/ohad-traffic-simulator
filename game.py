@@ -1,19 +1,22 @@
 import itertools
+import random
 import time
 from typing import List
 
 from board import Board
 from objects.car import CarObject
 from objects.core import ObjectsGroup, Object
-from objects.junction import JunctionObject, JunctionState
+from objects.junction import JunctionObject, JunctionTrafficLightColor
 from objects.road import RoadObject, RoadObjectsGroup
 from objects.wall import WallObject
-from utils import Coordinates, clear_screen, Direction
+from utils import Coordinates, clear_screen, Direction, get_random_color_name
 
 
 class Game:
 
     def __init__(self, board: Board, frame_rate_sec: float):
+        self.ticks_until_next_car_spawn = random.randint(5, 10)
+        self.max_cars = 10
         self.frame_rate_sec = frame_rate_sec
         self.board = board
         self.static_classes = [WallObject, RoadObject]
@@ -23,11 +26,13 @@ class Game:
     def __create_initial_objects(self):
         self.board.single_objects.extend(self.__create_borders())
 
-        roads = self.__create_roads()
+        self.roads = self.__create_roads()
+        self.board.object_groups.extend(self.roads)
 
-        self.board.object_groups.extend(roads)
-        self.board.single_objects.extend(self.__create_cars())
-        self.junctions = self.__identify_junctions(roads)
+        self.cars = self.__create_cars()
+        self.board.single_objects.extend(self.cars)
+
+        self.junctions = self.__identify_junctions(self.roads)
         self.board.single_objects.extend(self.junctions)
 
     def __create_borders(self) -> List[Object]:
@@ -52,24 +57,24 @@ class Game:
     def __create_roads(self) -> List[ObjectsGroup]:
         center_horizontal_road_1 = RoadObjectsGroup([
             RoadObject(Coordinates(x, self.board.map_size_y // 2), Direction.RIGHT) for x in range(1, self.board.map_size_x - 1)
-        ])
+        ], Direction.RIGHT)
 
         center_vertical_road_1 = RoadObjectsGroup([
             RoadObject(Coordinates(self.board.map_size_x // 2, y), Direction.DOWN) for y in range(1, self.board.map_size_y - 1)
-        ])
+        ], Direction.DOWN)
 
         return [center_horizontal_road_1, center_vertical_road_1]
 
     def __create_cars(self) -> List[Object]:
         roads = [group for group in self.board.object_groups if isinstance(group, RoadObjectsGroup)]
 
-        red_car = self.__create_car(roads[0], "red")
-        blue_car = self.__create_car(roads[1], "blue")
+        red_car = self.__create_car(roads[0])
+        blue_car = self.__create_car(roads[1])
 
         return [red_car, blue_car]
 
-    def __create_car(self, road: RoadObjectsGroup, color: str) -> CarObject:
-        red_car = CarObject(road.start.position.clone(), color)
+    def __create_car(self, road: RoadObjectsGroup) -> CarObject:
+        red_car = CarObject(road.start.position.clone(), get_random_color_name())
         red_car.active_road = road
 
         return red_car
@@ -81,7 +86,7 @@ class Game:
             intersections = road_a.get_intersections(road_b)
 
             for intersection in intersections:
-                junctions.append(JunctionObject(intersection.clone(), JunctionState.RED))
+                junctions.append(JunctionObject(intersection.clone(), [road_a.direction, road_b.direction]))
 
         return junctions
 
@@ -106,8 +111,29 @@ class Game:
 
         return junctions_at_coordinate[0]
 
+    def get_car(self, coordinates: Coordinates) -> [JunctionObject, None]:
+        cars_at_coordinate = [car for car in self.cars if car.position == coordinates]
+        if len(cars_at_coordinate) == 0:
+            return None
+
+        return cars_at_coordinate[0]
+
+    def __spawn_cars_if_needed(self):
+        if len(self.cars) < self.max_cars:
+            if self.ticks_until_next_car_spawn == 0:
+                road = random.choice(self.roads)
+                occupying_car = self.get_car(road.start.position)
+                if occupying_car is None:
+                    self.cars.append(self.__create_car(road))
+                    self.board.single_objects.append(self.cars[-1])
+                    self.ticks_until_next_car_spawn = random.randint(5, 10)
+            else:
+                self.ticks_until_next_car_spawn -= 1
+
     def run(self):
         while True:
+            self.__spawn_cars_if_needed()
+
             for obj in self.board.all_objects:
                 if any([isinstance(obj, cls) for cls in self.static_classes]):
                     continue

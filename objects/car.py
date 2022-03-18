@@ -2,7 +2,7 @@ from termcolor import colored
 
 import game_globals
 from objects.core import Object
-from objects.junction import JunctionState
+from objects.junction import JunctionTrafficLightColor
 from objects.road import RoadObject, RoadObjectsGroup
 from utils import Coordinates
 
@@ -41,11 +41,17 @@ class CarObject(Object):
             return
 
         roads_next_position = self.active_road.get_next_position(self.position)
-        junction = game_globals.GAME.get_junction(roads_next_position)
 
+        junction = game_globals.GAME.get_junction(roads_next_position)
         if junction:
-            if junction.state == JunctionState.RED:
+            if junction.direction != self.active_road.direction:
                 return
+            elif junction.color != JunctionTrafficLightColor.GREEN:
+                return
+            
+        car = game_globals.GAME.get_car(roads_next_position)
+        if car:
+            return
 
         self.position = roads_next_position
 
