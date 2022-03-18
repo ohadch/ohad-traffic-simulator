@@ -1,6 +1,7 @@
 import time
 from typing import List
 
+import game_globals
 from board import Board
 from objects import WallObject, RoadObject, CarObject
 from utils import Coordinates, clear_screen
@@ -50,6 +51,17 @@ class Game:
                     print(obj.char, end=" ")
             print()
 
+    def __print_meta(self):
+        print("Map size: {}x{}".format(self.board.map_size_x, self.board.map_size_y))
+        print("Frame rate: {}s".format(self.frame_rate_sec))
+        print("Objects:")
+        for obj in self.board.objects:
+            print("\t{}".format(obj))
+
+        print("Moves:")
+        for obj, move in game_globals.Moves:
+            print(f"\t{obj} moved from {move.origin} to {move.destination}")
+
     def run(self):
         while True:
             for obj in self.board.objects:
@@ -59,7 +71,6 @@ class Game:
             self.__draw()
 
             print("\n")
-            print(f"Frame rate: {1 / self.frame_rate_sec}")
-            print(f"Number of objects: {len(self.board.objects)}")
+            self.__print_meta()
 
             time.sleep(self.frame_rate_sec)

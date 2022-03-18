@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 
 
 class Vector:
@@ -30,8 +31,18 @@ class Coordinates:
     def __str__(self):
         return f"Coordinates({self.y}, {self.x})"
 
+    def update(self, vector: Vector):
+        self.y += vector.dy
+        self.x += vector.dx
+
     def clone(self) -> "Coordinates":
         return Coordinates(self.y, self.x)
+
+
+@dataclass
+class Move:
+    origin: Coordinates
+    destination: Coordinates
 
 
 def clear_screen():
