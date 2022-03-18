@@ -2,7 +2,7 @@ import time
 from typing import List
 
 from board import Board
-from objects import WallObject, RoadObject
+from objects import WallObject, RoadObject, ObjectsGroup
 from utils import Coordinates, clear_screen, Direction
 
 
@@ -16,37 +16,35 @@ class Game:
         self.__create_initial_objects()
 
     def __create_initial_objects(self):
-        self.roads: List[RoadObject] = self.__create_roads()
+        self.board.objectGroups.extend(self.__create_borders())
+        self.board.objectGroups.extend(self.__create_roads())
+        self.board.single_objects.extend(self.__create_cars())
 
-        self.board.objects.extend(self.__create_borders())
-        self.board.objects.extend(self.roads)
-        self.board.objects.extend(self.__create_cars())
-
-    def __create_borders(self) -> List[WallObject]:
-        upper_wall = [
+    def __create_borders(self) -> List[ObjectsGroup]:
+        upper_wall = ObjectsGroup([
             WallObject(Coordinates(x, 0)) for x in range(self.board.map_size_x)
-        ]
+        ])
 
-        lower_wall = [
+        lower_wall = ObjectsGroup([
             WallObject(Coordinates(x, self.board.map_size_y - 1)) for x in range(self.board.map_size_x)
-        ]
+        ])
 
-        left_wall = [
+        left_wall = ObjectsGroup([
             WallObject(Coordinates(0, y)) for y in range(self.board.map_size_y)
-        ]
+        ])
 
-        right_wall = [
+        right_wall = ObjectsGroup([
             WallObject(Coordinates(self.board.map_size_x - 1, y)) for y in range(self.board.map_size_y)
-        ]
+        ])
 
-        return [*upper_wall, *lower_wall, *left_wall, *right_wall]
+        return [upper_wall, lower_wall, left_wall, right_wall]
 
-    def __create_roads(self) -> List[RoadObject]:
-        center_horizontal_road = [
+    def __create_roads(self) -> List[ObjectsGroup]:
+        center_horizontal_road = ObjectsGroup([
             RoadObject(Coordinates(x, self.board.map_size_y // 2), Direction.RIGHT) for x in range(1, self.board.map_size_x - 1)
-        ]
+        ])
 
-        return [*center_horizontal_road]
+        return [center_horizontal_road]
 
     def __create_cars(self):
         return [
@@ -70,7 +68,7 @@ class Game:
 
     def run(self):
         while True:
-            for obj in self.board.objects:
+            for obj in self.board.all_objects:
                 if any([isinstance(obj, cls) for cls in self.static_classes]):
                     continue
 

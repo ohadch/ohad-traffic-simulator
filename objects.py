@@ -33,6 +33,12 @@ class Object:
         return Vector(0, 0)
 
 
+class ObjectsGroup:
+
+    def __init__(self, objects: List[Object]):
+        self.objects = objects
+
+
 class WallObject(Object):
 
     def __init__(self, center: Coordinates):
