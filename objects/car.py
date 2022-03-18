@@ -13,6 +13,16 @@ class CarObject(Object):
         super().__init__(center, colored("@", color))
         self.active_road: [RoadObjectsGroup, None] = None
 
+    @classmethod
+    def create_at_start_of_road(cls, road: RoadObjectsGroup):
+        """
+        Creates a car at the start of the road
+        @param road: The road where the car will be created
+        """
+        car = cls(road.start.position.clone(), get_random_color_name())
+        car.active_road = road
+        return car
+
     def __get_neighbors(self):
         """
         Returns a list of tuples with the coordinates and the object in the cell of the neighbors
