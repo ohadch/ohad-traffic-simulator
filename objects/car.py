@@ -4,7 +4,7 @@ import game_globals
 from objects.core import Object
 from objects.junction import JunctionTrafficLightColor
 from objects.road import RoadObject, RoadObjectsGroup
-from utils import Coordinates
+from utils import Coordinates, get_random_color_name
 
 
 class CarObject(Object):
@@ -12,6 +12,16 @@ class CarObject(Object):
     def __init__(self, center: Coordinates, color: str):
         super().__init__(center, colored("@", color))
         self.active_road: [RoadObjectsGroup, None] = None
+
+    @classmethod
+    def create_at_start_of_road(cls, road: RoadObjectsGroup):
+        """
+        Creates a car at the start of the road
+        @param road: The road where the car will be created
+        """
+        car = cls(road.start.position.clone(), get_random_color_name())
+        car.active_road = road
+        return car
 
     def __get_neighbors(self):
         """
@@ -48,7 +58,8 @@ class CarObject(Object):
 
         junction = game_globals.GAME.get_junction(roads_next_position)
         if junction:
-            if junction.direction != self.active_road.direction:
+            current_direction = self.active_road.get_direction_at_coordinate(self.position)
+            if junction.direction != current_direction:
                 return
             elif junction.color != JunctionTrafficLightColor.GREEN:
                 return

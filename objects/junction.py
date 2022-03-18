@@ -11,6 +11,11 @@ ASCII_ARROW_UP = '\u2191'
 ASCII_ARROW_DOWN = '\u2193'
 ASCII_ARROW_LEFT = '\u2190'
 ASCII_ARROW_RIGHT = '\u2192'
+ASCII_ARROW_UP_LEFT = '\u2196'
+ASCII_ARROW_UP_RIGHT = '\u2197'
+ASCII_ARROW_DOWN_LEFT = '\u2199'
+ASCII_ARROW_DOWN_RIGHT = '\u2198'
+
 
 
 class JunctionTrafficLightColor(Enum):
@@ -44,6 +49,14 @@ class JunctionObject(Object):
             return colored(ASCII_ARROW_LEFT, self.color.value)
         elif self.direction == Direction.RIGHT:
             return colored(ASCII_ARROW_RIGHT, self.color.value)
+        elif self.direction == Direction.UP_LEFT:
+            return colored(ASCII_ARROW_UP_LEFT, self.color.value)
+        elif self.direction == Direction.UP_RIGHT:
+            return colored(ASCII_ARROW_UP_RIGHT, self.color.value)
+        elif self.direction == Direction.DOWN_LEFT:
+            return colored(ASCII_ARROW_DOWN_LEFT, self.color.value)
+        elif self.direction == Direction.DOWN_RIGHT:
+            return colored(ASCII_ARROW_DOWN_RIGHT, self.color.value)
 
     def update(self):
         """

@@ -5,10 +5,10 @@ from typing import List
 
 from board import Board
 from objects.car import CarObject
-from objects.junction import JunctionObject, JunctionTrafficLightColor
+from objects.junction import JunctionObject
 from objects.road import RoadObject, RoadObjectsGroup
 from objects.wall import WallObject
-from utils import Coordinates, clear_screen, Direction, get_random_color_name
+from utils import Coordinates, clear_screen, Direction
 
 
 class Game:
@@ -34,7 +34,7 @@ class Game:
         self.cars = self.__create_cars()
         self.board.single_objects.extend(self.cars)
 
-        self.junctions = self.__identify_junctions(self.roads)
+        self.junctions = self.__identify_junctions()
         self.board.single_objects.extend(self.junctions)
 
     def __create_borders(self) -> List[WallObject]:
@@ -59,21 +59,35 @@ class Game:
         ]
 
         return [*upper_wall, *lower_wall, *left_wall, *right_wall]
-
+    
     def __create_roads(self) -> List[RoadObjectsGroup]:
         """
         Creates the roads of the board.
         @return: List of RoadObjectsGroup
         """
-        center_horizontal_road_1 = RoadObjectsGroup([
-            RoadObject(Coordinates(x, self.board.map_size_y // 2), Direction.RIGHT) for x in range(1, self.board.map_size_x - 1)
-        ], Direction.RIGHT)
+        center_horizontal_road_1 = RoadObjectsGroup.from_coordinates(
+            coordinates_list=[
+                Coordinates(1, self.board.map_size_y // 2),
+                Coordinates(self.board.map_size_x - 1, self.board.map_size_y // 2),
+            ]
+        )
 
-        center_vertical_road_1 = RoadObjectsGroup([
-            RoadObject(Coordinates(self.board.map_size_x // 2, y), Direction.DOWN) for y in range(1, self.board.map_size_y - 1)
-        ], Direction.DOWN)
+        center_vertical_road_1 = RoadObjectsGroup.from_coordinates(
+            coordinates_list=[
+                Coordinates(self.board.map_size_x // 2, 1),
+                Coordinates(self.board.map_size_x // 2, self.board.map_size_y - 1),
+            ]
+        )
 
-        return [center_horizontal_road_1, center_vertical_road_1]
+        s_road_1 = RoadObjectsGroup.from_coordinates(
+            coordinates_list=[
+                Coordinates(1, 2),
+                Coordinates(self.board.map_size_x // 3, self.board.map_size_y // 3),
+                Coordinates(self.board.map_size_x - 5, self.board.map_size_y - 1),
+            ]
+        )
+
+        return [center_horizontal_road_1, center_vertical_road_1, s_road_1]
 
     def __create_cars(self) -> List[CarObject]:
         """
@@ -82,35 +96,26 @@ class Game:
         """
         roads = [group for group in self.board.object_groups if isinstance(group, RoadObjectsGroup)]
 
-        red_car = self.__create_car(roads[0])
-        blue_car = self.__create_car(roads[1])
+        red_car = CarObject.create_at_start_of_road(roads[0])
+        blue_car = CarObject.create_at_start_of_road(roads[1])
 
         return [red_car, blue_car]
 
-    def __create_car(self, road: RoadObjectsGroup) -> CarObject:
-        """
-        Creates a car on the board.
-        @param road: The road the car is on.
-        @return: The created car.
-        """
-        car = CarObject(road.start.position.clone(), get_random_color_name())
-        car.active_road = road
-
-        return car
-
-    def __identify_junctions(self, roads: List[RoadObjectsGroup]) -> List[JunctionObject]:
+    def __identify_junctions(self) -> List[JunctionObject]:
         """
         Identifies the junctions on the board.
-        @param roads: The roads on the board.
         @return: The identified junctions.
         """
-        junctions: JunctionObject = []
+        junctions: List[JunctionObject] = []
 
-        for road_a, road_b in itertools.combinations(roads, 2):
+        for road_a, road_b in itertools.combinations(self.roads, 2):
             intersections = road_a.get_intersections(road_b)
 
             for intersection in intersections:
-                junctions.append(JunctionObject(intersection.clone(), [road_a.direction, road_b.direction]))
+                junctions.append(JunctionObject(intersection.clone(), [
+                    road_a.get_direction_at_coordinate(intersection),
+                    road_b.get_direction_at_coordinate(intersection),
+                ]))
 
         return junctions
 
@@ -129,7 +134,7 @@ class Game:
 
     def __print_meta(self):
         """
-        Prints the meta data of the board.
+        Prints the metadata of the board.
         """
         print("Map size: {}x{}".format(self.board.map_size_x, self.board.map_size_y))
         print("Frame rate: {}s".format(self.frame_rate_sec))
@@ -167,7 +172,7 @@ class Game:
                 road = random.choice(self.roads)
                 occupying_car = self.get_car(road.start.position)
                 if occupying_car is None:
-                    self.cars.append(self.__create_car(road))
+                    self.cars.append(CarObject.create_at_start_of_road(road))
                     self.board.single_objects.append(self.cars[-1])
                     self.ticks_until_next_car_spawn = random.randint(5, 10)
             else:
