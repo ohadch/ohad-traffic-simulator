@@ -9,7 +9,7 @@ from objects.core import ObjectsGroup, Object
 from objects.junction import JunctionObject, JunctionState
 from objects.road import RoadObject, RoadObjectsGroup
 from objects.wall import WallObject
-from utils import Coordinates, clear_screen, Direction
+from utils import Coordinates, clear_screen, Direction, get_random_color_name
 
 
 class Game:
@@ -68,13 +68,13 @@ class Game:
     def __create_cars(self) -> List[Object]:
         roads = [group for group in self.board.object_groups if isinstance(group, RoadObjectsGroup)]
 
-        red_car = self.__create_car(roads[0], "red")
-        blue_car = self.__create_car(roads[1], "blue")
+        red_car = self.__create_car(roads[0])
+        blue_car = self.__create_car(roads[1])
 
         return [red_car, blue_car]
 
-    def __create_car(self, road: RoadObjectsGroup, color: str) -> CarObject:
-        red_car = CarObject(road.start.position.clone(), color)
+    def __create_car(self, road: RoadObjectsGroup) -> CarObject:
+        red_car = CarObject(road.start.position.clone(), get_random_color_name())
         red_car.active_road = road
 
         return red_car
@@ -124,7 +124,7 @@ class Game:
                 road = random.choice(self.roads)
                 occupying_car = self.get_car(road.start.position)
                 if occupying_car is None:
-                    self.cars.append(self.__create_car(road, "green"))
+                    self.cars.append(self.__create_car(road))
                     self.board.single_objects.append(self.cars[-1])
                     self.ticks_until_next_car_spawn = random.randint(5, 10)
             else:
