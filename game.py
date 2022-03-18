@@ -1,56 +1,8 @@
 import time
-from typing import List
 
-
-from utils import Coordinates, Vector, clear_screen
-
-
-class Object:
-
-    def __init__(self, center: Coordinates, span: List[Coordinates], char: str):
-        self.center = center
-        self.span = span
-        self.vector: Vector = Vector(0, 0)
-        self.char: str = char
-
-    def move(self):
-        self.center.x += self.vector.dx
-        self.center.y += self.vector.dy
-
-    def update(self):
-        raise NotImplementedError
-
-
-class WallObject(Object):
-
-    def __init__(self, center: Coordinates, span: List[Coordinates]):
-        super().__init__(center, span, "#")
-
-    def update(self):
-        pass
-
-
-class RoadObject(Object):
-
-    def __init__(self, center: Coordinates, span: List[Coordinates], char: str):
-        super().__init__(center, span, char)
-
-    def update(self):
-        pass
-
-
-class Board:
-
-    def __init__(self, map_size_x: int, map_size_y: int):
-        self.map_size_x = map_size_x
-        self.map_size_y = map_size_y
-        self.objects: List[Object] = []
-
-    def get_object_at(self, coordinates: Coordinates) -> [Object, None]:
-        for obj in self.objects:
-            if coordinates in obj.span:
-                return obj
-        return None
+from board import Board
+from objects import WallObject, RoadObject
+from utils import Coordinates, clear_screen
 
 
 class Game:
@@ -91,9 +43,8 @@ class Game:
 
     def run(self):
         while True:
-            # for obj in self.board.objects:
-            #     obj.update()
-            #     obj.move()
+            for obj in self.board.objects:
+                obj.update()
 
             clear_screen()
             self.__draw()
