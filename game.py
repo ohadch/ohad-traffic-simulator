@@ -38,7 +38,7 @@ class Game:
 
     def __create_cars(self):
         return [
-            CarObject(self.roads[0].span[0], "red"),
+            CarObject(self.roads[0].span[0].clone(), "red"),
         ]
 
     def __draw(self):

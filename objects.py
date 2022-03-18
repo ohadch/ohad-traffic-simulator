@@ -74,12 +74,16 @@ class CarObject(Object):
         else:
             return Coordinates(self.center.x + self.vector.dx, self.center.y + self.vector.dy)
 
+    def is_in_junction(self):
+        neighbors = self.__get_neighbors()
+        return len([cors for cors, obj in neighbors if isinstance(obj, RoadObject)]) > 2
+
     def _update_vector(self):
         neighbors = self.__get_neighbors()
         coordinates_of_neighboring_roads = [cors for cors, obj in neighbors if isinstance(obj, RoadObject)]
         speed = self.speed()
 
-        if speed == 0:
+        if speed == 0 or self.is_in_junction():
             destination = random.choice(coordinates_of_neighboring_roads)
 
             self.vector = Vector(
