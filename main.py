@@ -5,8 +5,8 @@ def main():
     frame_rate_sec = 0.027
 
     board = Board(
-        map_size_x=10,
-        map_size_y=10,
+        map_size_x=11,
+        map_size_y=11,
     )
 
     Game(

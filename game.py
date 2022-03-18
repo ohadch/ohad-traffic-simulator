@@ -7,18 +7,11 @@ from utils import Coordinates, Vector, clear_screen
 
 class Object:
 
-    def __init__(self, center: Coordinates, get_span_fn: [callable, None] = None):
+    def __init__(self, center: Coordinates, span: List[Coordinates], char: str):
         self.center = center
+        self.span = span
         self.vector: Vector = Vector(0, 0)
-        self.get_span_fn = get_span_fn if get_span_fn is not None else lambda: [self.center]
-
-    @property
-    def span(self) -> List[Coordinates]:
-        return self.get_span_fn()
-
-    @property
-    def char(self) -> str:
-        raise NotImplementedError
+        self.char: str = char
 
     def move(self):
         self.center.x += self.vector.dx
@@ -30,12 +23,17 @@ class Object:
 
 class WallObject(Object):
 
-    def __init__(self, center: Coordinates, get_span_fn: callable):
-        super().__init__(center, get_span_fn)
+    def __init__(self, center: Coordinates, span: List[Coordinates]):
+        super().__init__(center, span, "#")
 
-    @property
-    def char(self) -> str:
-        return "*"
+    def update(self):
+        pass
+
+
+class RoadObject(Object):
+
+    def __init__(self, center: Coordinates, span: List[Coordinates], char: str):
+        super().__init__(center, span, char)
 
     def update(self):
         pass
@@ -65,14 +63,21 @@ class Game:
 
     def __create_initial_objects(self):
         self.board.objects.extend(self.__create_borders())
+        self.board.objects.extend(self.__create_roads())
 
     def __create_borders(self):
-        upper_wall = WallObject(Coordinates(0, 0), lambda: [Coordinates(x, 0) for x in range(self.board.map_size_x)])
-        lower_wall = WallObject(Coordinates(0, self.board.map_size_y - 1), lambda: [Coordinates(x, self.board.map_size_y - 1) for x in range(self.board.map_size_x)])
-        left_wall = WallObject(Coordinates(0, 0), lambda: [Coordinates(0, y) for y in range(self.board.map_size_y)])
-        right_wall = WallObject(Coordinates(self.board.map_size_x - 1, 0), lambda: [Coordinates(self.board.map_size_x - 1, y) for y in range(self.board.map_size_y)])
+        upper_wall = WallObject(Coordinates(0, 0), [Coordinates(0, x) for x in range(self.board.map_size_y)])
+        lower_wall = WallObject(Coordinates(self.board.map_size_y - 1, 0), [Coordinates(self.board.map_size_y - 1, x) for x in range(self.board.map_size_y)])
+        left_wall = WallObject(Coordinates(0, 0), [Coordinates(x, 0) for x in range(self.board.map_size_x)])
+        right_wall = WallObject(Coordinates(0, self.board.map_size_x - 1), [Coordinates(x, self.board.map_size_x - 1) for x in range(self.board.map_size_x)])
 
         return [upper_wall, lower_wall, left_wall, right_wall]
+
+    def __create_roads(self):
+        center_horizontal_road = RoadObject(Coordinates(self.board.map_size_y // 2, 0), [Coordinates(x, self.board.map_size_y // 2) for x in range(self.board.map_size_x)], "*")
+        center_vertical_road = RoadObject(Coordinates(0, self.board.map_size_x // 2), [Coordinates(self.board.map_size_y // 2, x) for x in range(self.board.map_size_y)], "*")
+
+        return [center_horizontal_road, center_vertical_road]
 
     def __draw(self):
         for x in range(self.board.map_size_x):
