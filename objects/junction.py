@@ -1,3 +1,4 @@
+import random
 from enum import Enum
 
 from termcolor import colored
@@ -14,6 +15,11 @@ class JunctionState(Enum):
 class JunctionObject(Object):
     __char = "*"
 
+    def __init__(self, position: Coordinates, initial_state: JunctionState):
+        self.state: JunctionState = initial_state
+        Object.__init__(self, position, self.__get_char_by_state())
+        self.ticks_until_flip = 0
+
     def __get_char_by_state(self):
         if self.state == JunctionState.RED:
             return colored(self.__char, "red")
@@ -21,10 +27,10 @@ class JunctionObject(Object):
             return colored(self.__char, "green")
 
     def update(self):
-        pass
+        if self.ticks_until_flip > 0:
+            self.ticks_until_flip -= 1
+        else:
+            self.state = JunctionState.RED if self.state == JunctionState.GREEN else JunctionState.GREEN
+            self.ticks_until_flip = random.randint(5, 10)
 
-    def __init__(self, position: Coordinates, initial_state: JunctionState):
-        self.state: JunctionState = initial_state
-        Object.__init__(self, position, self.__get_char_by_state())
-
-
+        self.char = self.__get_char_by_state()

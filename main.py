@@ -11,10 +11,12 @@ def main():
         map_size_y=21,
     )
 
-    Game(
+    game_globals.GAME = Game(
         board=game_globals.BOARD,
         frame_rate_sec=frame_rate_sec
-    ).run()
+    )
+
+    game_globals.GAME.run()
 
 
 if __name__ == '__main__':

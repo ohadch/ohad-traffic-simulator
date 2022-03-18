@@ -1,1 +1,2 @@
+GAME = None
 BOARD = None
