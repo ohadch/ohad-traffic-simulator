@@ -16,7 +16,7 @@ class CarObject(Object):
     def __get_neighbors(self):
         """
         Returns a list of tuples with the coordinates and the object in the cell of the neighbors
-        :return: A list of tuples with the coordinates and the object in the cell of the neighbors
+        @return: A list of tuples with the coordinates and the object in the cell of the neighbors
         """
         return [
             [Coordinates(self.position.x + 1, self.position.y), game_globals.BOARD.get_object_at(
@@ -32,7 +32,7 @@ class CarObject(Object):
     def is_in_junction(self):
         """
         Returns True if the car is in a junction
-        :return: True if the car is in a junction, False otherwise
+        @return: True if the car is in a junction, False otherwise
         """
         neighbors = self.__get_neighbors()
         return len([cors for cors, obj in neighbors if isinstance(obj, RoadObject)]) > 2

@@ -31,7 +31,7 @@ class JunctionObject(Object):
     def __get_char_by_state(self):
         """
         Returns the character to be displayed on the screen based on the current state of the object.
-        :return: The character to be displayed on the screen.
+        @return: The character to be displayed on the screen.
         """
         if self.color == JunctionTrafficLightColor.RED:
             return colored("*", self.color.value)

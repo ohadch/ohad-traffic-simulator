@@ -5,7 +5,6 @@ from typing import List
 
 from board import Board
 from objects.car import CarObject
-from objects.core import ObjectsGroup, Object
 from objects.junction import JunctionObject, JunctionTrafficLightColor
 from objects.road import RoadObject, RoadObjectsGroup
 from objects.wall import WallObject
@@ -92,7 +91,7 @@ class Game:
         """
         Creates a car on the board.
         :param road: The road the car is on.
-        :return: The created car.
+        @return: The created car.
         """
         car = CarObject(road.start.position.clone(), get_random_color_name())
         car.active_road = road
@@ -103,7 +102,7 @@ class Game:
         """
         Identifies the junctions on the board.
         :param roads: The roads on the board.
-        :return: The identified junctions.
+        @return: The identified junctions.
         """
         junctions: JunctionObject = []
 
@@ -139,7 +138,7 @@ class Game:
         """
         Gets the junction at the given coordinates.
         :param coordinates: The coordinates of the junction.
-        :return: The junction at the given coordinates or None if there is no junction at the given coordinates.
+        @return: The junction at the given coordinates or None if there is no junction at the given coordinates.
         """
         junctions_at_coordinate = [junction for junction in self.junctions if junction.position == coordinates]
         if len(junctions_at_coordinate) == 0:
@@ -151,7 +150,7 @@ class Game:
         """
         Gets the car at the given coordinates.
         :param coordinates: The coordinates of the car.
-        :return: The car at the given coordinates or None if there is no car at the given coordinates.
+        @return: The car at the given coordinates or None if there is no car at the given coordinates.
         """
         cars_at_coordinate = [car for car in self.cars if car.position == coordinates]
         if len(cars_at_coordinate) == 0:
