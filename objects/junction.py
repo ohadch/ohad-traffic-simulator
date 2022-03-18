@@ -31,6 +31,6 @@ class JunctionObject(Object):
             self.ticks_until_flip -= 1
         else:
             self.state = JunctionState.RED if self.state == JunctionState.GREEN else JunctionState.GREEN
-            self.ticks_until_flip = random.randint(5, 10)
+            self.ticks_until_flip = random.randint(5, 15)
 
         self.char = self.__get_char_by_state()

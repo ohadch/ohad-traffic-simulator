@@ -41,11 +41,15 @@ class CarObject(Object):
             return
 
         roads_next_position = self.active_road.get_next_position(self.position)
-        junction = game_globals.GAME.get_junction(roads_next_position)
 
+        junction = game_globals.GAME.get_junction(roads_next_position)
         if junction:
             if junction.state == JunctionState.RED:
                 return
+
+        car = game_globals.GAME.get_car(roads_next_position)
+        if car:
+            return
 
         self.position = roads_next_position
 
