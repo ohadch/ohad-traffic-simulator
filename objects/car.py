@@ -4,14 +4,15 @@ from termcolor import colored
 
 import game_globals
 from objects.core import Object
-from objects.road import RoadObject
-from utils import Coordinates, Vector
+from objects.road import RoadObject, RoadObjectsGroup
+from utils import Coordinates
 
 
 class CarObject(Object):
 
     def __init__(self, center: Coordinates, color: str):
         super().__init__(center, colored("@", color))
+        self.active_road: [RoadObjectsGroup, None] = None
 
     def __get_neighbors(self):
         return [
@@ -29,20 +30,19 @@ class CarObject(Object):
         neighbors = self.__get_neighbors()
         return len([cors for cors, obj in neighbors if isinstance(obj, RoadObject)]) > 2
 
-    def _update_vector(self):
-        neighbors = self.__get_neighbors()
-        coordinates_of_neighboring_roads = [cors for cors, obj in neighbors if isinstance(obj, RoadObject)]
-        speed = self.speed()
+    def __get_possible_moves(self):
+        if not self.active_road:
+            return
 
-        if speed == 0 or self.is_in_junction():
-            destination = random.choice(coordinates_of_neighboring_roads)
+        if self.position == self.active_road.end.position:
+            return self.active_road.start
 
-            self.vector = Vector(
-                dx=destination.x - self.position.x,
-                dy=destination.y - self.position.y
-            )
-        else:
-            next_by_vector = Coordinates(self.position.x + self.vector.dx, self.position.y + self.vector.dy)
+    def update(self):
+        if not self.active_road:
+            return
 
-            if next_by_vector not in coordinates_of_neighboring_roads:
-                self.vector = Vector(0, 0)
+        if self.position == self.active_road.end.position:
+            self.position = self.active_road.start.position
+
+        self.position = self.active_road.get_next_position(self.position)
+

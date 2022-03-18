@@ -20,7 +20,7 @@ class Game:
 
     def __create_initial_objects(self):
         self.board.single_objects.extend(self.__create_borders())
-        self.board.objectGroups.extend(self.__create_roads())
+        self.board.object_groups.extend(self.__create_roads())
         self.board.single_objects.extend(self.__create_cars())
 
     def __create_borders(self) -> List[Object]:
@@ -50,9 +50,13 @@ class Game:
         return [center_horizontal_road]
 
     def __create_cars(self):
-        roads = [group for group in self.board.objectGroups if isinstance(group, RoadObjectsGroup)]
+        roads = [group for group in self.board.object_groups if isinstance(group, RoadObjectsGroup)]
+        red_car_road = roads[0]
+        red_car = CarObject(red_car_road.start.position.clone(), "red")
+        red_car.active_road = red_car_road
+
         return [
-            CarObject(roads[0].start.position.clone(), "red"),
+            red_car
         ]
 
     def __draw(self):

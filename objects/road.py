@@ -23,7 +23,7 @@ class RoadObject(Object):
             Direction.RIGHT: ASCII_ARROW_RIGHT
         }[self.direction]
 
-    def _update_vector(self) -> Coordinates:
+    def _update(self) -> Coordinates:
         return self.position
 
 
@@ -39,3 +39,10 @@ class RoadObjectsGroup(ObjectsGroup):
     @property
     def end(self) -> RoadObject:
         return self.objects[-1]
+
+    def get_next_position(self, current: Coordinates) -> [Coordinates, None]:
+        for idx, obj in enumerate(self.objects):
+            if obj.position == current:
+                return self.objects[idx + 1].position
+
+        return None

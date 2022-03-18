@@ -11,12 +11,12 @@ class Board:
         self.map_size_x = map_size_x
         self.map_size_y = map_size_y
         self.single_objects: List[Object] = []
-        self.objectGroups: List[ObjectsGroup] = []
+        self.object_groups: List[ObjectsGroup] = []
 
     @property
     def all_objects(self):
         return [
-            *reduce(lambda x, y: x + y, [foo.objects for foo in self.objectGroups]),
+            *reduce(lambda x, y: x + y, [foo.objects for foo in self.object_groups]),
             *[foo for foo in self.single_objects],
         ]
 
