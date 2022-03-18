@@ -10,6 +10,9 @@ class Object:
         self.char: str = char
 
     def update(self):
+        """
+        Update the object's position.
+        """
         raise NotImplementedError
 
 

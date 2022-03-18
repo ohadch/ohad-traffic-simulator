@@ -15,12 +15,21 @@ class Board:
 
     @property
     def all_objects(self):
+        """
+        Returns all objects on the board, whether they are single or belonging to a group.
+        :return: All objects on the board.
+        """
         return [
             *reduce(lambda x, y: x + y, [foo.objects for foo in self.object_groups]),
             *[foo for foo in self.single_objects],
         ]
 
     def get_object_at(self, coordinates: Coordinates) -> [Object, None]:
+        """
+        Returns the object at the given coordinates.
+        :param coordinates: The coordinates of the object.
+        :return: The object at the given coordinates or None if there is no object at the given coordinates.
+        """
         for obj in self.all_objects[::-1]:
             if coordinates == obj.position:
                 return obj

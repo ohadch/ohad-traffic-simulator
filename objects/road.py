@@ -38,9 +38,26 @@ class RoadObjectsGroup(ObjectsGroup):
 
     @property
     def start(self) -> RoadObject:
+        """
+        Returns the beginning of the road.
+        @return: The beginning of the road.
+        """
         return self.objects[0]
 
+    @property
+    def end(self) -> RoadObject:
+        """
+        Returns the end of the road.
+        :return: The end of the road.
+        """
+        return self.objects[-1]
+
     def get_intersections(self, other: "RoadObjectsGroup") -> List[Coordinates]:
+        """
+        Returns the intersections between two road objects groups.
+        :param other: The other road objects group.
+        :return: The intersections between the two road objects groups.
+        """
         intersections = []
         other_positions = [obj.position for obj in other.objects]
 
@@ -50,11 +67,12 @@ class RoadObjectsGroup(ObjectsGroup):
 
         return intersections
 
-    @property
-    def end(self) -> RoadObject:
-        return self.objects[-1]
-
     def get_next_position(self, current: Coordinates) -> [Coordinates, None]:
+        """
+        Returns the next position of the car based on the direction of the road.
+        :param current: The current position.
+        :return: The next position of the car based on the direction of the road.
+        """
         for idx, obj in enumerate(self.objects):
             if obj.position == current:
                 next_idx = (idx + 1) % len(self.objects)

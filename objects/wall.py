@@ -9,4 +9,7 @@ class WallObject(Object):
         super().__init__(center, "#")
 
     def update(self):
+        """
+        Walls don't move
+        """
         pass

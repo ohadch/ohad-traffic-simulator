@@ -29,6 +29,10 @@ class JunctionObject(Object):
         self.ticks_until_flip = 0
 
     def __get_char_by_state(self):
+        """
+        Returns the character to be displayed on the screen based on the current state of the object.
+        :return: The character to be displayed on the screen.
+        """
         if self.color == JunctionTrafficLightColor.RED:
             return colored("*", self.color.value)
 
@@ -42,6 +46,9 @@ class JunctionObject(Object):
             return colored(ASCII_ARROW_RIGHT, self.color.value)
 
     def update(self):
+        """
+        Updates the object.
+        """
         if self.ticks_until_flip > 0:
             self.ticks_until_flip -= 1
         else:
