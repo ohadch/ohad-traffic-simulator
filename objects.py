@@ -4,13 +4,12 @@ from typing import List
 from termcolor import colored
 
 import game_globals
-from utils import Coordinates, Vector, Move
+from utils import Coordinates, Vector
 
 
 class Object:
 
     def __init__(self, center: Coordinates, span: List[Coordinates], char: str):
-        self.moves: List[Move] = []
         self.center = center
         self.span = span
         self.vector: Vector = Vector(0, 0)
@@ -23,17 +22,15 @@ class Object:
         self.vector.stop()
 
     def update(self):
-        current_position = self.center
-        new_position = self._get_next_position()
+        self._update_vector()
 
-        if new_position == current_position:
-            return
+        for cors in self.span:
+            cors.update(
+                vector=self.vector,
+            )
 
-        self.moves.append(Move(current_position, new_position))
-        self.center = new_position
-
-    def _get_next_position(self) -> Coordinates:
-        return self.center
+    def _update_vector(self) -> Vector:
+        return Vector(0, 0)
 
 
 class WallObject(Object):
@@ -41,7 +38,7 @@ class WallObject(Object):
     def __init__(self, center: Coordinates, span: List[Coordinates]):
         super().__init__(center, span, "#")
 
-    def _get_next_position(self) -> Coordinates:
+    def _update_vector(self) -> Coordinates:
         return self.center
 
 
@@ -50,7 +47,7 @@ class RoadObject(Object):
     def __init__(self, center: Coordinates, span: List[Coordinates], char: str):
         super().__init__(center, span, char)
 
-    def _get_next_position(self) -> Coordinates:
+    def _update_vector(self) -> Coordinates:
         return self.center
 
 
@@ -77,24 +74,20 @@ class CarObject(Object):
         else:
             return Coordinates(self.center.x + self.vector.dx, self.center.y + self.vector.dy)
 
-    def __start_movement(self):
+    def _update_vector(self):
         neighbors = self.__get_neighbors()
         coordinates_of_neighboring_roads = [cors for cors, obj in neighbors if isinstance(obj, RoadObject)]
-        return random.choice(coordinates_of_neighboring_roads)
+        speed = self.speed()
 
-    def __continue_movement(self):
-        next_by_vector = self.get_next_by_vector()
+        if speed == 0:
+            destination = random.choice(coordinates_of_neighboring_roads)
 
-        neighbors = self.__get_neighbors()
-        coordinates_of_neighboring_roads = [cors for cors, obj in neighbors if isinstance(obj, RoadObject)]
-
-        if next_by_vector in coordinates_of_neighboring_roads:
-            return next_by_vector
+            self.vector = Vector(
+                dx=destination.x - self.center.x,
+                dy=destination.y - self.center.y
+            )
         else:
-            self.stop()
+            next_by_vector = self.get_next_by_vector()
 
-    def _get_next_position(self) -> Coordinates:
-        if self.speed() == 0:
-            return self.__start_movement()
-        else:
-            return self.__continue_movement()
+            if next_by_vector not in coordinates_of_neighboring_roads:
+                self.vector = Vector(0, 0)

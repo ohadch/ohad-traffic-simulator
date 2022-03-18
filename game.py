@@ -1,7 +1,6 @@
 import time
 from typing import List
 
-import game_globals
 from board import Board
 from objects import WallObject, RoadObject, CarObject
 from utils import Coordinates, clear_screen
@@ -12,6 +11,7 @@ class Game:
     def __init__(self, board: Board, frame_rate_sec: float):
         self.frame_rate_sec = frame_rate_sec
         self.board = board
+        self.static_classes = [WallObject, RoadObject]
 
         self.__create_initial_objects()
 
@@ -54,17 +54,13 @@ class Game:
     def __print_meta(self):
         print("Map size: {}x{}".format(self.board.map_size_x, self.board.map_size_y))
         print("Frame rate: {}s".format(self.frame_rate_sec))
-        print("Objects:")
-        for obj in self.board.objects:
-            print("\t{}".format(obj))
-
-        print("Moves:")
-        for obj, move in game_globals.Moves:
-            print(f"\t{obj} moved from {move.origin} to {move.destination}")
 
     def run(self):
         while True:
             for obj in self.board.objects:
+                if any([isinstance(obj, cls) for cls in self.static_classes]):
+                    continue
+
                 obj.update()
 
             clear_screen()
