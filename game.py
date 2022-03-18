@@ -59,19 +59,25 @@ class Game:
         ]
 
         return [*upper_wall, *lower_wall, *left_wall, *right_wall]
-
+    
     def __create_roads(self) -> List[RoadObjectsGroup]:
         """
         Creates the roads of the board.
         @return: List of RoadObjectsGroup
         """
-        center_horizontal_road_1 = RoadObjectsGroup([
-            RoadObject(Coordinates(x, self.board.map_size_y // 2), Direction.RIGHT) for x in range(1, self.board.map_size_x - 1)
-        ], Direction.RIGHT)
+        center_horizontal_road_1 = RoadObjectsGroup.from_coordinates(
+            coordinates_list=[
+                Coordinates(1, self.board.map_size_y // 2),
+                Coordinates(self.board.map_size_x - 1, self.board.map_size_y // 2),
+            ]
+        )
 
-        center_vertical_road_1 = RoadObjectsGroup([
-            RoadObject(Coordinates(self.board.map_size_x // 2, y), Direction.DOWN) for y in range(1, self.board.map_size_y - 1)
-        ], Direction.DOWN)
+        center_vertical_road_1 = RoadObjectsGroup.from_coordinates(
+            coordinates_list=[
+                Coordinates(self.board.map_size_x // 2, 1),
+                Coordinates(self.board.map_size_x // 2, self.board.map_size_y - 1),
+            ]
+        )
 
         return [center_horizontal_road_1, center_vertical_road_1]
 
@@ -98,7 +104,7 @@ class Game:
             intersections = road_a.get_intersections(road_b)
 
             for intersection in intersections:
-                junctions.append(JunctionObject(intersection.clone(), [road_a.direction, road_b.direction]))
+                junctions.append(JunctionObject(intersection.clone(), list(Direction)))
 
         return junctions
 
