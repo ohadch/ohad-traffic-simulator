@@ -79,7 +79,15 @@ class Game:
             ]
         )
 
-        return [center_horizontal_road_1, center_vertical_road_1]
+        s_road_1 = RoadObjectsGroup.from_coordinates(
+            coordinates_list=[
+                Coordinates(1, 2),
+                Coordinates(self.board.map_size_x // 3, self.board.map_size_y // 3),
+                Coordinates(self.board.map_size_x - 5, self.board.map_size_y - 1),
+            ]
+        )
+
+        return [center_horizontal_road_1, center_vertical_road_1, s_road_1]
 
     def __create_cars(self) -> List[CarObject]:
         """
@@ -104,7 +112,10 @@ class Game:
             intersections = road_a.get_intersections(road_b)
 
             for intersection in intersections:
-                junctions.append(JunctionObject(intersection.clone(), list(Direction)))
+                junctions.append(JunctionObject(intersection.clone(), [
+                    road_a.get_direction_at_coordinate(intersection),
+                    road_b.get_direction_at_coordinate(intersection),
+                ]))
 
         return junctions
 
