@@ -5,7 +5,7 @@ from typing import List
 
 from board import Board
 from objects.car import CarObject
-from objects.junction import JunctionObject, JunctionTrafficLightColor
+from objects.junction import JunctionObject
 from objects.road import RoadObject, RoadObjectsGroup
 from objects.wall import WallObject
 from utils import Coordinates, clear_screen, Direction, get_random_color_name
@@ -34,7 +34,7 @@ class Game:
         self.cars = self.__create_cars()
         self.board.single_objects.extend(self.cars)
 
-        self.junctions = self.__identify_junctions(self.roads)
+        self.junctions = self.__identify_junctions()
         self.board.single_objects.extend(self.junctions)
 
     def __create_borders(self) -> List[WallObject]:
@@ -98,15 +98,14 @@ class Game:
 
         return car
 
-    def __identify_junctions(self, roads: List[RoadObjectsGroup]) -> List[JunctionObject]:
+    def __identify_junctions(self) -> List[JunctionObject]:
         """
         Identifies the junctions on the board.
-        @param roads: The roads on the board.
         @return: The identified junctions.
         """
-        junctions: JunctionObject = []
+        junctions: List[JunctionObject] = []
 
-        for road_a, road_b in itertools.combinations(roads, 2):
+        for road_a, road_b in itertools.combinations(self.roads, 2):
             intersections = road_a.get_intersections(road_b)
 
             for intersection in intersections:
@@ -129,7 +128,7 @@ class Game:
 
     def __print_meta(self):
         """
-        Prints the meta data of the board.
+        Prints the metadata of the board.
         """
         print("Map size: {}x{}".format(self.board.map_size_x, self.board.map_size_y))
         print("Frame rate: {}s".format(self.frame_rate_sec))
