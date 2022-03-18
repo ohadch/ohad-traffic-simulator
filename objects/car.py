@@ -39,8 +39,6 @@ class CarObject(Object):
         if not self.active_road:
             return
 
-        if self.position == self.active_road.end.position:
-            self.position = self.active_road.start.position
-
-        self.position = self.active_road.get_next_position(self.position)
+        roads_next_position = self.active_road.get_next_position(self.position)
+        self.position = roads_next_position
 

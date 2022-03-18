@@ -23,8 +23,8 @@ class JunctionObject(Object):
     def update(self):
         pass
 
-    def __init__(self, position: Coordinates):
-        self.state: JunctionState = JunctionState.GREEN
+    def __init__(self, position: Coordinates, initial_state: JunctionState):
+        self.state: JunctionState = initial_state
         Object.__init__(self, position, self.__get_char_by_state())
 
 

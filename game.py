@@ -5,7 +5,7 @@ from typing import List
 from board import Board
 from objects.car import CarObject
 from objects.core import ObjectsGroup, Object
-from objects.junction import JunctionObject
+from objects.junction import JunctionObject, JunctionState
 from objects.road import RoadObject, RoadObjectsGroup
 from objects.wall import WallObject
 from utils import Coordinates, clear_screen, Direction
@@ -76,7 +76,7 @@ class Game:
             intersections = road_a.get_intersections(road_b)
 
             for intersection in intersections:
-                self.board.single_objects.append(JunctionObject(intersection.clone()))
+                self.board.single_objects.append(JunctionObject(intersection.clone(), JunctionState.RED))
 
     def __draw(self):
         for y in range(self.board.map_size_y):

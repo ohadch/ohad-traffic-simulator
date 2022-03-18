@@ -56,6 +56,7 @@ class RoadObjectsGroup(ObjectsGroup):
     def get_next_position(self, current: Coordinates) -> [Coordinates, None]:
         for idx, obj in enumerate(self.objects):
             if obj.position == current:
-                return self.objects[idx + 1].position
+                next_idx = (idx + 1) % len(self.objects)
+                return self.objects[next_idx].position
 
         return None
