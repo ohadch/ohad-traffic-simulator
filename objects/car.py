@@ -1,69 +1,11 @@
 import random
-from typing import List
 
 from termcolor import colored
 
 import game_globals
-from utils import Coordinates, Vector, Direction
-
-ASCII_ARROW_UP = '\u2191'
-ASCII_ARROW_DOWN = '\u2193'
-ASCII_ARROW_LEFT = '\u2190'
-ASCII_ARROW_RIGHT = '\u2192'
-
-
-class Object:
-
-    def __init__(self, position: Coordinates, char: str):
-        self.position = position
-        self.vector: Vector = Vector(0, 0)
-        self.char: str = char
-
-    def speed(self):
-        return self.vector.speed()
-
-    def stop(self):
-        self.vector.stop()
-
-    def update(self):
-        self._update_vector()
-        self.position.update(self.vector)
-
-    def _update_vector(self) -> Vector:
-        return Vector(0, 0)
-
-
-class ObjectsGroup:
-
-    def __init__(self, objects: List[Object]):
-        self.objects = objects
-
-
-class WallObject(Object):
-
-    def __init__(self, center: Coordinates):
-        super().__init__(center, "#")
-
-    def _update_vector(self) -> Coordinates:
-        return self.position
-
-
-class RoadObject(Object):
-
-    def __init__(self, center: Coordinates, direction: Direction):
-        self.direction = direction
-        super().__init__(center, self.__get_char())
-
-    def __get_char(self) -> str:
-        return {
-            Direction.UP: ASCII_ARROW_UP,
-            Direction.DOWN: ASCII_ARROW_DOWN,
-            Direction.LEFT: ASCII_ARROW_LEFT,
-            Direction.RIGHT: ASCII_ARROW_RIGHT
-        }[self.direction]
-
-    def _update_vector(self) -> Coordinates:
-        return self.position
+from objects.core import Object
+from objects.road import RoadObject
+from utils import Coordinates, Vector
 
 
 class CarObject(Object):

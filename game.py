@@ -2,7 +2,10 @@ import time
 from typing import List
 
 from board import Board
-from objects import WallObject, RoadObject, ObjectsGroup
+from objects.car import CarObject
+from objects.core import ObjectsGroup, Object
+from objects.road import RoadObject, RoadObjectsGroup
+from objects.wall import WallObject
 from utils import Coordinates, clear_screen, Direction
 
 
@@ -16,40 +19,40 @@ class Game:
         self.__create_initial_objects()
 
     def __create_initial_objects(self):
-        self.board.objectGroups.extend(self.__create_borders())
+        self.board.single_objects.extend(self.__create_borders())
         self.board.objectGroups.extend(self.__create_roads())
         self.board.single_objects.extend(self.__create_cars())
 
-    def __create_borders(self) -> List[ObjectsGroup]:
-        upper_wall = ObjectsGroup([
+    def __create_borders(self) -> List[Object]:
+        upper_wall = [
             WallObject(Coordinates(x, 0)) for x in range(self.board.map_size_x)
-        ])
+        ]
 
-        lower_wall = ObjectsGroup([
+        lower_wall = [
             WallObject(Coordinates(x, self.board.map_size_y - 1)) for x in range(self.board.map_size_x)
-        ])
+        ]
 
-        left_wall = ObjectsGroup([
+        left_wall = [
             WallObject(Coordinates(0, y)) for y in range(self.board.map_size_y)
-        ])
+        ]
 
-        right_wall = ObjectsGroup([
+        right_wall = [
             WallObject(Coordinates(self.board.map_size_x - 1, y)) for y in range(self.board.map_size_y)
-        ])
+        ]
 
-        return [upper_wall, lower_wall, left_wall, right_wall]
+        return [*upper_wall, *lower_wall, *left_wall, *right_wall]
 
     def __create_roads(self) -> List[ObjectsGroup]:
-        center_horizontal_road = ObjectsGroup([
+        center_horizontal_road = RoadObjectsGroup([
             RoadObject(Coordinates(x, self.board.map_size_y // 2), Direction.RIGHT) for x in range(1, self.board.map_size_x - 1)
         ])
 
         return [center_horizontal_road]
 
     def __create_cars(self):
+        roads = [group for group in self.board.objectGroups if isinstance(group, RoadObjectsGroup)]
         return [
-            # CarObject(self.roads[0].span[0].clone(), "red"),
-            # CarObject(self.roads[1].span[0].clone(), "blue"),
+            CarObject(roads[0].start.position.clone(), "red"),
         ]
 
     def __draw(self):

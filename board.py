@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import List
 
-from objects import Object, ObjectsGroup
+from objects.core import Object, ObjectsGroup
 from utils import Coordinates
 
 
@@ -16,8 +16,8 @@ class Board:
     @property
     def all_objects(self):
         return [
+            *reduce(lambda x, y: x + y, [foo.objects for foo in self.objectGroups]),
             *[foo for foo in self.single_objects],
-            *reduce(lambda x, y: x + y, [foo.objects for foo in self.objectGroups])
         ]
 
     def get_object_at(self, coordinates: Coordinates) -> [Object, None]:
